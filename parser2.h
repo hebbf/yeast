@@ -14,8 +14,9 @@ using namespace std;
 
 class Production;
 class Expression;
-class Factor;
 class Number;
+class Parens;
+class Mult;
 
 class Production {
 public:
@@ -25,7 +26,7 @@ public:
 
 class Expression : public Production {
 private:
-	deque<Number*> values;
+	deque<Mult*> values;
 	deque<char> operators;
 public:
 	Expression(istream& in);
@@ -41,4 +42,24 @@ public:
 	int getValue(){return value;};
 };
 
+class Parens : public Production {
+private: 
+	Production* value;
+public:
+	Parens(istream& in);
+	~Parens();
+	int getValue();
+};
+
+class Mult : public Production {
+private:
+	deque<Parens*> values;
+	deque<char> operators;
+public:
+	Mult(istream& in);
+	~Mult();
+	int getValue();
+};
+
+	
 #endif

@@ -5,28 +5,11 @@
 
 using namespace std;
 
-static void removeWS(istream& in);
-static char getChar(istream& in);
-
-static void removeWS(istream& in) {
-	while(isspace(in.peek())) {
-		in.get();
-	}
-}
-
-static char getChar(istream& in) {
-	removeWS(in);
-	char returnVal = in.get();
-	removeWS(in);
-	return returnVal;
-}
-
 Expression::Expression(istream& in) {
-	removeWS(in);
-	values.push_back(new Number(in));
+	values.push_back(new Mult(in));
 	while(in.peek() == '+') {
-		operators.push_back(getChar(in));
-		values.push_back(new Number(in));
+		operators.push_back(in.get());
+		values.push_back(new Mult(in));
 	}
 }
 
@@ -47,8 +30,43 @@ int Expression::getValue() {
 }
 
 Number::Number(istream& in) {
-	removeWS(in);
 	in >> value;
-	removeWS(in);
+}
+
+Parens::Parens(istream& in) {
+	if(in.peek() == '(') {
+		in.get();
+		value = new Expression(in);
+		in.get();
+	}
+	else {value = new Number(in);}
+}
+
+Parens::~Parens() {delete value;}
+
+int Parens::getValue(){return value->getValue();}
+
+Mult::Mult(istream& in) {
+	values.push_back(new Parens(in));
+	while(in.peek() == '*') {
+		operators.push_back(in.get());
+		values.push_back(new Parens(in));
+	}
+}
+
+Mult::~Mult() {
+	int i;
+	for(i = 0; i < values.size(); i++) {
+		delete values[i];
+	}
+}
+
+int Mult::getValue() {
+	int returnVal = values[0]->getValue();
+	int i;
+	for(i = 1; i < values.size(); i++) {
+		returnVal *= (values[i]->getValue());
+	}
+	return returnVal;
 }
 
