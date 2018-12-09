@@ -6,10 +6,10 @@
 using namespace std;
 
 Expression::Expression(istream& in) {
-	values.push_back(new Mult(in));
-	while(in.peek() == '+') {
+	values.push_back(new MultDiv(in));
+	while(in.peek() == '+' || in.peek() == '-') {
 		operators.push_back(in.get());
-		values.push_back(new Mult(in));
+		values.push_back(new MultDiv(in));
 	}
 }
 
@@ -20,11 +20,16 @@ Expression::~Expression() {
 	}
 }
 
-int Expression::getValue() {
-	int returnVal = values[0]->getValue();
+double Expression::getValue() {
+	double returnVal = values[0]->getValue();
 	int i;
 	for(i = 1; i < values.size(); i++) {
-		returnVal += values[i]->getValue();
+		if(operators[i-1] == '+'){
+			returnVal += values[i]->getValue();
+		}
+		else {
+			returnVal -= values[i]->getValue();
+		}
 	}
 	return returnVal;
 }
@@ -44,28 +49,33 @@ Parens::Parens(istream& in) {
 
 Parens::~Parens() {delete value;}
 
-int Parens::getValue(){return value->getValue();}
+double Parens::getValue(){return value->getValue();}
 
-Mult::Mult(istream& in) {
+MultDiv::MultDiv(istream& in) {
 	values.push_back(new Parens(in));
-	while(in.peek() == '*') {
+	while(in.peek() == '*' || in.peek() == '/') {
 		operators.push_back(in.get());
 		values.push_back(new Parens(in));
 	}
 }
 
-Mult::~Mult() {
+MultDiv::~MultDiv() {
 	int i;
 	for(i = 0; i < values.size(); i++) {
 		delete values[i];
 	}
 }
 
-int Mult::getValue() {
-	int returnVal = values[0]->getValue();
+double MultDiv::getValue() {
+	double returnVal = values[0]->getValue();
 	int i;
 	for(i = 1; i < values.size(); i++) {
-		returnVal *= (values[i]->getValue());
+		if(operators[i-1] == '*'){
+			returnVal *= values[i]->getValue();
+		}
+		else {
+			returnVal /= values[i]->getValue();
+		}
 	}
 	return returnVal;
 }

@@ -16,30 +16,30 @@ class Production;
 class Expression;
 class Number;
 class Parens;
-class Mult;
+class MultDiv;
 
 class Production {
 public:
 	virtual ~Production(){};
-	virtual int getValue() = 0;
+	virtual double getValue() = 0;
 };
 
 class Expression : public Production {
 private:
-	deque<Mult*> values;
+	deque<MultDiv*> values;
 	deque<char> operators;
 public:
 	Expression(istream& in);
 	~Expression();
-	int getValue();
+	double getValue();
 };
 	
 class Number : public Production {
 private:
-	int value;
+	double value;
 public:
 	Number(istream& in);
-	int getValue(){return value;};
+	double getValue(){return value;};
 };
 
 class Parens : public Production {
@@ -48,17 +48,17 @@ private:
 public:
 	Parens(istream& in);
 	~Parens();
-	int getValue();
+	double getValue();
 };
 
-class Mult : public Production {
+class MultDiv : public Production {
 private:
 	deque<Parens*> values;
 	deque<char> operators;
 public:
-	Mult(istream& in);
-	~Mult();
-	int getValue();
+	MultDiv(istream& in);
+	~MultDiv();
+	double getValue();
 };
 
 	
